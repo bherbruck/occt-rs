@@ -1,0 +1,21 @@
+[package]
+name = "occt-kernel-capi"
+description = "occt-kernel implementation backed by OCCT through the occt_capi module."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+occt-kernel.workspace = true
+occt-capi-sys.workspace = true
+
+[dev-dependencies]
+occt-conformance.workspace = true
+
+[target.'cfg(target_arch = "wasm32")'.dev-dependencies]
+wasm-bindgen = "0.2"

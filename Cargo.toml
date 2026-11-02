@@ -1,0 +1,26 @@
+[workspace]
+resolver = "3"
+members = ["crates/*"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/bherbruck/occt-rs"
+
+[workspace.dependencies]
+occt-math = { path = "crates/occt-math", version = "0.1.0" }
+occt-mesh = { path = "crates/occt-mesh", version = "0.1.0" }
+occt-geom = { path = "crates/occt-geom", version = "0.1.0" }
+occt-kernel = { path = "crates/occt-kernel", version = "0.1.0" }
+occt-capi-sys = { path = "crates/occt-capi-sys", version = "0.1.0" }
+occt-kernel-capi = { path = "crates/occt-kernel-capi", version = "0.1.0" }
+occt-conformance = { path = "crates/occt-conformance", version = "0.1.0" }
+
+[workspace.lints.rust]
+missing_docs = "warn"
+unsafe_op_in_unsafe_fn = "deny"
+
+[workspace.lints.clippy]
+all = "warn"

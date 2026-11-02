@@ -1,0 +1,60 @@
+name: CI
+on:
+  push:
+  pull_request:
+
+jobs:
+  native:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - uses: actions/cache@v4
+        with:
+          path: target
+          key: native-${{ matrix.os }}-${{ hashFiles('crates/occt-capi-sys/capi/**') }}
+      - run: cargo test --workspace
+      - run: cargo clippy --workspace --all-targets -- -D warnings
+
+  wasm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: 6.0.13
+      - run: |
+          cmake -DOUT_DIR=$PWD/out -DWASM=ON \
+            -DTOOLCHAIN=$EMSDK/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake \
+            -P crates/occt-capi-sys/capi/build.cmake
+      - run: node crates/occt-capi-sys/capi/smoke.mjs out/lib/occt_capi.mjs
+      - run: cargo check --target wasm32-unknown-unknown -p occt-rs
+      - name: Conformance suite inside wasm
+        run: |
+          cargo build --target wasm32-unknown-unknown -p occt-kernel-capi --example wasm_conformance
+          version=$(cargo metadata --format-version 1 | jq -r '.packages[] | select(.name=="wasm-bindgen") | .version')
+          cargo install wasm-bindgen-cli --version "$version" --locked
+          wasm-bindgen --target nodejs --out-dir out/wc target/wasm32-unknown-unknown/debug/examples/wasm_conformance.wasm
+          node crates/occt-kernel-capi/examples/wasm_conformance.mjs out/lib/occt_capi.mjs out/wc/wasm_conformance.js
+
+  layering:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Nothing above the backend depends on FFI
+        run: |
+          for crate in occt-math occt-geom occt-mesh occt-kernel occt-conformance; do
+            if cargo tree -p "$crate" -e normal --prefix none | grep -q capi; then
+              echo "$crate depends on the backend"; exit 1
+            fi
+          done

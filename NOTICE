@@ -1,0 +1,11 @@
+occt-rs
+Copyright (c) 2026 occt-rs contributors
+Licensed under MIT OR Apache-2.0.
+
+This software makes use of and is based on facilities provided by the
+Open CASCADE Technology software.
+
+Open CASCADE Technology is not covered by the licence above. It is licensed
+under the GNU Lesser General Public License version 2.1 with the Open CASCADE
+exception version 1.0. See crates/occt-capi-sys/licenses/ for both texts.
+Source code: https://github.com/Open-Cascade-SAS/OCCT

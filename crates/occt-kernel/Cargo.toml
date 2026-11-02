@@ -1,0 +1,16 @@
+[package]
+name = "occt-kernel"
+description = "The kernel contract of occt-rs: traits any B-rep backend implements, plus shared error and kind types. No FFI."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+occt-math.workspace = true
+occt-geom.workspace = true
+occt-mesh.workspace = true

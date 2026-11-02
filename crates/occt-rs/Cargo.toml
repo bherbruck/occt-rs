@@ -1,0 +1,29 @@
+[package]
+name = "occt-rs"
+description = "Idiomatic Rust solid modelling on Open CASCADE Technology."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[lib]
+name = "occt"
+
+[lints]
+workspace = true
+
+[features]
+default = ["capi"]
+capi = ["dep:occt-kernel-capi"]
+
+[dependencies]
+occt-math.workspace = true
+occt-mesh.workspace = true
+occt-geom.workspace = true
+occt-kernel.workspace = true
+occt-kernel-capi = { workspace = true, optional = true }
+
+[dev-dependencies]
+occt-conformance.workspace = true
+occt-kernel-capi.workspace = true
