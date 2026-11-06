@@ -19,6 +19,9 @@ jobs:
         with:
           path: target
           key: native-${{ matrix.os }}-${{ hashFiles('crates/occt-capi-sys/capi/**') }}
+          # OCCT takes hours to build and rarely changes. Starting from an older cache, only
+          # the shim rebuilds, and build.cmake rebuilds OCCT itself if its version changed.
+          restore-keys: native-${{ matrix.os }}-
       - run: cargo test --workspace
       - run: cargo clippy --workspace --all-targets -- -D warnings
 
@@ -32,6 +35,11 @@ jobs:
       - uses: mymindstorm/setup-emsdk@v14
         with:
           version: 6.0.13
+      - uses: actions/cache@v4
+        with:
+          path: out
+          key: wasm-${{ hashFiles('crates/occt-capi-sys/capi/**') }}
+          restore-keys: wasm-
       - run: |
           cmake -DOUT_DIR=$PWD/out -DWASM=ON \
             -DTOOLCHAIN=$EMSDK/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake \

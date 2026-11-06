@@ -50,8 +50,8 @@ uint32_t blend(uint32_t h, const void* edges, size_t count, double value, const 
 API uint32_t occt_abi_version() { return 3; }
 API const char* occt_library_version_ptr() { return OCC_VERSION_STRING_EXT; }
 API size_t occt_library_version_len() { return std::strlen(OCC_VERSION_STRING_EXT); }
-API const char* occt_last_error_ptr() { return t_error.c_str(); }
-API size_t occt_last_error_len() { return t_error.size(); }
+API const char* occt_last_error_ptr() { return last_error().c_str(); }
+API size_t occt_last_error_len() { return last_error().size(); }
 
 // --- input memory, needed when the caller has its own linear memory ----------
 

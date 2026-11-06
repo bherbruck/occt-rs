@@ -104,7 +104,12 @@ inline uint32_t g_next = 1;
 inline std::unordered_map<uint32_t, TopoDS_Shape> g_shapes;
 inline std::unordered_map<uint32_t, Bytes> g_buffers;
 
-inline thread_local std::string t_error;
+// Inside a function because Apple's linker rejects an `inline thread_local` variable used from
+// several files: each object file's copy of its initialisation routine counts as a duplicate.
+inline std::string& last_error() {
+  thread_local std::string error;
+  return error;
+}
 
 using KernelLock = std::lock_guard<std::recursive_mutex>;
 
@@ -139,17 +144,17 @@ template <typename R, typename F>
 R guard(R on_error, F&& f) noexcept {
   KernelLock lock(g_kernel_mutex);
   try {
-    t_error.clear();
+    last_error().clear();
     return f();
   } catch (const Standard_Failure& e) {
-    t_error = e.ExceptionType();
-    if (*e.what() != '\0') t_error += std::string(": ") + e.what();
+    last_error() = e.ExceptionType();
+    if (*e.what() != '\0') last_error() += std::string(": ") + e.what();
   } catch (const std::exception& e) {
-    t_error = e.what();
+    last_error() = e.what();
   } catch (...) {
-    t_error = "unknown error in OCCT";
+    last_error() = "unknown error in OCCT";
   }
-  if (t_error.empty()) t_error = "unknown error in OCCT";
+  if (last_error().empty()) last_error() = "unknown error in OCCT";
   return on_error;
 }
 
